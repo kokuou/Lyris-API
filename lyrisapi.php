@@ -1220,19 +1220,23 @@
                     $responseobj = new \SimpleXMLElement($response);
 
 
-                    //check for errors
-          $response_msg = (string) $responseobj->DATA;
-                    if (strpos($response_msg, 'Your segments generations has started.') === false) {
-                        throw new \Exception('Segment Management - Generate failed with message: ' . (string) $responseobj->DATA);
-                    }
-
-
                     //create blank array to bind items to
                     $returnarray = array();
 
-                    //clean up result and return array
-                    $returnarray['status'] = (string) $responseobj->DATA;
+                    //check for errors
+                    $response_msg = (string) $responseobj->DATA;
+                    if (strpos($response_msg, 'Your segments generations has started.') === false) {
+                        //since all that is returned is [status]->message (which will include error messages), we won't throw any exceptions.
+                        $returnarray['status'] = 'error';
+                        $returnarray['message'] = (string) $responseobj->DATA;
 
+                    } else {
+                        //else, call was successful
+                        $returnarray['status'] = 'success';
+                        $returnarray['message'] = (string) $responseobj->DATA;
+                    }
+
+                    //finally, return the array
                     return $returnarray;
                 }
 
